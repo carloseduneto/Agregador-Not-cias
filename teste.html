@@ -28,19 +28,32 @@
     // Extração dos itens do feed
     const items = xml.querySelectorAll("item");
     let noticias = [];
+
+    
     
     items.forEach((item) => {
         let titulo = item.querySelector("title")?.textContent || "Sem título";
         let descricao = item.querySelector("description")?.textContent || "Sem descrição";
-        noticias.push({ titulo, descricao });
+        let link = item.querySelector("link")?.textContent || "Sem descrição";
+        
+        let imageUrlMatch = descricao.match(/<img[^>]+src="([^"]+)"/);
+        let imageUrl = imageUrlMatch ? imageUrlMatch[1] : "Sem imagem";
+
+        console.log(imageUrl)
+
+
+        noticias.push({ titulo, descricao,link, imageUrl });
     });
     
     // Exibe os resultados no console
     let jsonShow = document.getElementById("feed");
 
     for (let noticia1 of noticias){
-        jsonShow.innerHTML+=noticia1.titulo+"<br>"
-        jsonShow.innerHTML+=noticia1.descricao+"<br>"
+        var descricaoCorrigida = noticia1.descricao
+        descricaoCorrigida = descricaoCorrigida.replace(/<img[^>]*>/g, "");
+        jsonShow.innerHTML+= `<img src='${noticia1.imageUrl}'><br>`
+        jsonShow.innerHTML+=`<a href='${noticia1.link}'><b>${noticia1.titulo}</b></a><br>`
+        jsonShow.innerHTML+=descricaoCorrigida+"<br>"
     }
 
     console.log(noticias);
@@ -55,5 +68,6 @@ carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
 
 
 </script>
+<a href=""></a>
 </body>
 </html>
