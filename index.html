@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu Agregador de Notícias</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+      }
+      #feed {
+        max-width: 300px;
+        margin: auto;
+      }
+      .noticia {
+        background: rgb(255, 255, 255);
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(255, 69, 69, 0.1);
+      }
+      .noticia h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .noticia a {
+        text-decoration: none;
+        color: #004794;
+      }
+      .noticia img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .noticia p {
+        color: #555;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+      .fonte {
+        font-size: 12px;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Notícias Filtradas</h1>
+    <div id="feed">Carregando notícias...</div>
+
+    <script>
+      const palavrasProibidas = [
+        "Trump",
+        "Bolsonaro",
+        "Lula",
+        "Guerra",
+        "Musk",
+        "Gates",
+        "chocante",
+      ];
+      const rssFeeds = [
+        "https://misteriosdomundo.org/feed/gn",
+        "http://www.bbc.co.uk/portuguese/index.xml",
+        "https://super.abril.com.br/feed/",
+        "https://rss.uol.com.br/feed/tecnologia.xml",
+      ];
+      const rss2jsonApi = "https://api.rss2json.com/v1/api.json?rss_url=";
+
+      let todasNoticias = []; // Armazenamento das notícias
+
+      async function fetchOGImage(url) {
+        try {
+          const response = await fetch(url);
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+
+          const ogImage = doc.querySelector('meta[property="og:image"]');
+          const twitterImage = doc.querySelector('meta[name="twitter:image"]');
+          return (
+            ogImage?.content ||
+            twitterImage?.content ||
+            "https://via.placeholder.com/600x200?text=Sem+Imagem"
+          );
+        } catch (error) {
+          console.error("Erro ao buscar Open Graph Image:", error);
+          return "https://via.placeholder.com/600x200?text=Sem+Imagem";
+        }
+      }
+
+      function corrigirEncoding(texto) {
+        if (!texto) return "";
+
+        try {
+          // Converte a string corrompida de volta para bytes e depois para UTF-8
+          const bytes = new TextEncoder().encode(texto);
+          return new TextDecoder("iso-8859-1").decode(bytes);
+        } catch {
+          return texto; // Retorna original caso falhe
+        }
+      }
+
+      async function processFeed(rssUrl) {
+        const apiURL = rss2jsonApi + encodeURIComponent(rssUrl);
+        try {
+          const response = await fetch(apiURL);
+          const data = await response.json();
+          return data.items || [];
+        } catch (error) {
+          console.error("Erro ao carregar o feed:", error);
+          return [];
+        }
+      }
+
+      async function carregarNoticias() {
+        const feedDiv = document.getElementById("feed");
+        feedDiv.innerHTML = "";
+
+        let todasNoticiasTemp = [];
+        for (let feed of rssFeeds) {
+          const noticias = await processFeed(feed);
+          todasNoticiasTemp = todasNoticiasTemp.concat(noticias);
+        }
+
+        todasNoticiasTemp.sort(
+          (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
+        );
+
+        todasNoticias = todasNoticiasTemp; // Atualizando a variável global
+
+        console.log(todasNoticiasTemp);
+        for (const item of todasNoticias) {
+          if (
+            palavrasProibidas.some(
+              (palavra) =>
+                item.title.includes(palavra) ||
+                (item.description && item.description.includes(palavra))
+            )
+          ) {
+            continue;
+          }
+
+          // Removendo caracteres corrompidos
+          function corrigirTexto(texto) {
+            try {
+              return decodeURIComponent(escape(texto));
+            } catch {
+              return texto; // Retorna original caso falhe
+            }
+          }
+
+          let titleCorrigido = corrigirTexto(item.title);
+          let descricaoCorrigida = corrigirTexto(
+            item.description || "Sem descrição disponível."
+          );
+
+          // Removendo a tag <img> da descrição
+          descricaoCorrigida = descricaoCorrigida.replace(/<img[^>]*>/g, "");
+
+          let imageUrl = "https://via.placeholder.com/600x200?text=Sem+Imagem";
+          if (item.enclosure?.link) {
+            imageUrl = item.enclosure.link;
+          } else if (item.thumbnail) {
+            imageUrl = item.thumbnail;
+          } else if (item.content) {
+            const imgMatchContent = item.content.match(/<img.*?src="(.*?)"/);
+            if (imgMatchContent) {
+              imageUrl = imgMatchContent[1];
+            }
+          }
+
+          if (imageUrl.includes("placeholder")) {
+            imageUrl = await fetchOGImage(item.link);
+          }
+
+          const urlObj = new URL(item.link);
+          const fonte = urlObj.hostname.replace("www.", "");
+
+          const noticia = document.createElement("div");
+          noticia.className = "noticia";
+          noticia.innerHTML = `
+      <img src="${imageUrl}" alt="Imagem da notícia">
+      <p class="fonte">Fonte: ${fonte}</p>
+      <h3><a href="${item.link}" target="_blank">${titleCorrigido}</a></h3>
+      <p>${descricaoCorrigida}</p>
+    `;
+          feedDiv.appendChild(noticia);
+        }
+
+        if (feedDiv.innerHTML === "") {
+          feedDiv.innerHTML = "<p>Nenhuma notícia disponível.</p>";
+        }
+      }
+
+      // Primeira execução
+      carregarNoticias();
+
+      // Atualizar a cada 1 hora (3600000 ms)
+      setInterval(carregarNoticias, 3600000);
+    </script>
+  </body>
+</html>

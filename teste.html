@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+    <div id="feed"></div>
+    <script>
+        async function carregarRSS(url) {
+            // Usando o AllOrigins para contornar o CORS
+            const proxy = "https://api.allorigins.win/raw?url=";
+            
+            try {
+                // Requisição que retorna um ArrayBuffer (bytes brutos)
+                const response = await fetch(proxy + encodeURIComponent(url));
+                const buffer = await response.arrayBuffer();
+                
+                // Decodifica os bytes usando a codificação iso-8859-1
+                const decoder = new TextDecoder("iso-8859-1");
+    const text = decoder.decode(buffer);
+    
+    // Faz o parsing do XML
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+    
+    // Extração dos itens do feed
+    const items = xml.querySelectorAll("item");
+    let noticias = [];
+    
+    items.forEach((item) => {
+        let titulo = item.querySelector("title")?.textContent || "Sem título";
+        let descricao = item.querySelector("description")?.textContent || "Sem descrição";
+        noticias.push({ titulo, descricao });
+    });
+    
+    // Exibe os resultados no console
+    let jsonShow = document.getElementById("feed");
+
+    for (let noticia1 of noticias){
+        jsonShow.innerHTML+=noticia1.titulo+"<br>"
+        jsonShow.innerHTML+=noticia1.descricao+"<br>"
+    }
+
+    console.log(noticias);
+} catch (error) {
+    console.error("Erro ao carregar RSS:", error);
+  }
+}
+
+// Chame a função com o feed do UOL
+carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
+
+
+
+</script>
+</body>
+</html>
