@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meu Agregador de Notícias</title>
+    <title>Filtrum</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -51,7 +51,7 @@
     </style>
   </head>
   <body>
-    <h1>Notícias Filtradas</h1>
+    <h1>Infiltro</h1>
     <div id="feed">Carregando notícias...</div>
 
     <script>
@@ -70,8 +70,14 @@
         "https://super.abril.com.br/feed/",
         "https://rss.uol.com.br/feed/tecnologia.xml",
         "http://pplware.sapo.pt/feed/",
-        "http://rss.sapo.pt/tek/",
+        "https://feeds.folha.uol.com.br/ciencia/rss091.xml"
+  
+
       ];
+
+      const ciencias =[
+        "misterios", "super", "Ciência", "ciencia"
+      ]
       const rss2jsonApi = "https://api.rss2json.com/v1/api.json?rss_url=";
 
       let todasNoticias = []; // Armazenamento das notícias
@@ -113,12 +119,14 @@
         try {
           const response = await fetch(apiURL);
           const data = await response.json();
+
           return data.items || [];
         } catch (error) {
           console.error("Erro ao carregar o feed:", error);
           return [];
         }
       }
+      console.log(globalThis.noticiasUol)
 
       async function carregarNoticias() {
         const feedDiv = document.getElementById("feed");
@@ -129,6 +137,7 @@
           const noticias = await processFeed(feed);
           todasNoticiasTemp = todasNoticiasTemp.concat(noticias);
         }
+        todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
 
         todasNoticiasTemp.sort(
           (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
@@ -147,6 +156,14 @@
           ) {
             continue;
           }
+
+          if (
+            !ciencias.some(
+              (palavra) =>
+               item.link.includes(palavra) || item.category?.includes(palavra))
+          ) {
+            continue; 
+          }          
 
           // Removendo caracteres corrompidos
           function corrigirTexto(texto) {
@@ -170,6 +187,8 @@
             imageUrl = item.enclosure.link;
           } else if (item.thumbnail) {
             imageUrl = item.thumbnail;
+          }else if (item.link.includes("folha")){
+            imageUrl = "https://anafe.org.br/wp-content/uploads/2022/01/file.png"
           } else if (item.content) {
             const imgMatchContent = item.content.match(/<img.*?src="(.*?)"/);
             if (imgMatchContent) {
@@ -206,5 +225,6 @@
       // Atualizar a cada 1 hora (3600000 ms)
       setInterval(carregarNoticias, 3600000);
     </script>
+    <script src="noticiasUol.js"></script>
   </body>
 </html>
