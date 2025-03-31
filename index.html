@@ -90,6 +90,10 @@
       const ciencias =[
         "misterios", "super", "Ciência", "ciencia"
       ]
+
+      const cleanSites = [
+        "super", "folha"
+      ]
       const rss2jsonApi = "https://api.rss2json.com/v1/api.json?rss_url=";
 
       let todasNoticias = []; // Armazenamento das notícias
@@ -219,10 +223,20 @@
           noticia.className = "noticia";
           noticia.innerHTML = `
       <img src="${imageUrl}" alt="Imagem da notícia">
-      <p class="fonte">Fonte: ${fonte}</p>
-      <h3><a href="${item.link}" target="_blank">${titleCorrigido}</a></h3>
-      <p>${descricaoCorrigida}</p>
-    `;
+      <p class="fonte">Fonte: ${fonte}</p>`
+      if (
+            cleanSites.some(
+              (palavra) =>
+               item.link.includes(palavra))
+          ) {
+            noticia.innerHTML+=`<h3><a href="https://12ft.io/${item.link}" target="_blank">${titleCorrigido}</a></h3>
+      <p>${descricaoCorrigida}</p>`;
+          }else{
+            noticia.innerHTML+=`<h3><a href="${item.link}" target="_blank">${titleCorrigido}</a></h3>
+            <p>${descricaoCorrigida}</p>`;
+          }
+
+
           feedDiv.appendChild(noticia);
         }
 
