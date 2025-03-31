@@ -36,10 +36,11 @@
         let descricao = item.querySelector("description")?.textContent || "Sem descrição";
         let link = item.querySelector("link")?.textContent || "Sem descrição";
         
-        let imageUrlMatch = descricao.match(/<img[^>]+src="([^"]+)"/);
-        let imageUrl = imageUrlMatch ? imageUrlMatch[1] : "Sem imagem";
+        let match = descricao.match(/<img\s+[^>]*src=['"]([^'"]+)['"]/i);
 
-        console.log(imageUrl)
+        let imageUrl = match ? match[1] : null;
+
+        console.log(imageUrl);
 
 
         noticias.push({ titulo, descricao,link, imageUrl });
@@ -63,7 +64,7 @@
 }
 
 // Chame a função com o feed do UOL
-carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
+carregarRSS("https://gizmodo.uol.com.br/feed/");
 
 
 
