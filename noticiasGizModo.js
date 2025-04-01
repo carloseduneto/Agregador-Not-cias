@@ -1,4 +1,4 @@
-async function carregarRSS(url) {
+async function carregarRSSGiz(url) {
   // Usando o AllOrigins para contornar o CORS
   const proxy = "https://api.allorigins.win/raw?url=";
 
@@ -118,4 +118,4 @@ async function carregarRSS(url) {
 }
 
 // Chame a função com o feed do UOL
-carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
+carregarRSSGiz("https://gizmodo.uol.com.br/feed/");
