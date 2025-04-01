@@ -59,7 +59,10 @@
         object-fit: cover;
         border-radius: 5px;
         margin-bottom: 10px;
-        background-color: #c4c4c4;
+        background-color: #e9e9e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       
       .h3Loading{
@@ -79,14 +82,21 @@
     </style>
 
     <link rel="shortcut icon" href="fav-icon.png" type="image/x-icon">
+
+    <link rel="stylesheet" href="loading.css">
+
   </head>
   <body>
     <h1><img src="logo.svg" alt="" class="logo"></h1>
     <div id="feed"><div class="noticia">
-      <div class="blankLoading"></div>
+      <div class="blankLoading">
+
+        <div class="loader"></div>
+
+      </div>
       <h3 class="h3Loading">A</h3>
-      <p class="pLoading">A</p>
-    
+      <p class="pLoading">A </p>
+    </div>
 
     <script>
       const palavrasProibidas = [
@@ -274,6 +284,6 @@
       setInterval(carregarNoticias, 3600000);
     </script>
     <script src="noticiasUol.js"></script>
-
+ 
   </body>
 </html>
