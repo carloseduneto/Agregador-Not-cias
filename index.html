@@ -98,6 +98,7 @@
       <p class="pLoading">A </p>
     </div>
 
+        <script src="newsImpact.js"></script>
     <script>
       const palavrasProibidas = [
         "Trump",
@@ -114,13 +115,19 @@
         "https://super.abril.com.br/feed/",
         "https://rss.uol.com.br/feed/tecnologia.xml",
         "http://pplware.sapo.pt/feed/",
-        "https://feeds.folha.uol.com.br/ciencia/rss091.xml"
+        "https://feeds.folha.uol.com.br/ciencia/rss091.xml",
   
 
       ];
 
+      const rssCiencia = [
+        "misteriosdomundo",
+        "super.abril.com.br",
+        "redir.folha.com.br/redir"
+      ]
+
       const ciencias =[
-        "misterios", "super", "Ciência", "ciencia"
+        "Ciência"
       ]
 
       const cleanSites = [
@@ -174,7 +181,7 @@
           return [];
         }
       }
-      console.log(globalThis.noticiasUol)
+      // console.log(globalThis.noticiasUol)
 
       async function carregarNoticias() {
         const feedDiv = document.getElementById("feed");
@@ -193,9 +200,24 @@
 
         todasNoticias = todasNoticiasTemp; // Atualizando a variável global
 
+
+
+        //Categorizar notícias e avaliar impacto
+        for(const item2 of todasNoticias){
+          console.log(item2.link)
+          if (
+            rssCiencia.some(
+              (palavra) =>
+               (item2.link.includes(palavra)))
+          ) {
+             item2.category = "Ciência"
+          } 
+          item2.impact = newsImpact(item2.title,item2.description)
+        }
+
         console.log(todasNoticiasTemp);
         for (const item of todasNoticias) {
-          if (
+          /*if (
             palavrasProibidas.some(
               (palavra) =>
                 item.title.includes(palavra) ||
@@ -204,14 +226,15 @@
           ) {
             continue;
           }
-
+          
           if (
             !ciencias.some(
               (palavra) =>
-               item.link.includes(palavra) || item.category?.includes(palavra))
-          ) {
-            continue; 
-          }          
+              item.link.includes(palavra) || item.category?.includes(palavra))
+            ) {
+              continue; 
+            }          
+            */
 
           // Removendo caracteres corrompidos
           function corrigirTexto(texto) {
@@ -255,7 +278,7 @@
           noticia.className = "noticia";
           noticia.innerHTML = `
       <img src="${imageUrl}" alt="Imagem da notícia">
-      <p class="fonte">Fonte: ${fonte}</p>`
+      <p class="fonte">Fonte: ${fonte}, ${item.category}, ${item.impact}</p>`
       if (
             cleanSites.some(
               (palavra) =>
@@ -282,8 +305,10 @@
 
       // Atualizar a cada 1 hora (3600000 ms)
       setInterval(carregarNoticias, 3600000);
+
+      
     </script>
-    <script src="noticiasGizModo.js"></script>
-    
+    <script src="noticiasGizModo.js" onload="carregarRSSGiz()"></script>
+
   </body>
 </html>

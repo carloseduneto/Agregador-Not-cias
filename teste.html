@@ -6,94 +6,161 @@
         <title>Document</title>
     </head>
     <body>
-    <div id="feed"></div>
-    <script>
-let noticiasUolCache = null;
-let lastLoaded = null;
+        <div id="feed"></div>
+        <script src="newsImpact.js"></script>
+        <script>
+            const rssUolCategory = [
+              "uol.com.br/tilt",
+              "economia.uol.com.br",
+              "noticias.uol.com.br"
+            ]
+const proxy = "https://api.allorigins.win/raw?url=";
+let todasNoticias = [];
+const cacheKey = "xmlNoticiasCache";
+const cacheTimeKey = "xmlNoticiasCacheTime";
+const cacheDuration = 360000; // 1 hora em milissegundos
 
-async function carregarRSS(url) {
-    // Usando o AllOrigins para contornar o CORS
-    const proxy = "https://api.allorigins.win/raw?url=";
-    
-    try {
-        // Verifica se já se passaram 1 hora desde a última carga
-        const now = new Date();
-        if (lastLoaded && now - lastLoaded < 3600000 && noticiasUolCache !== null) {
-            // Se já carregou recentemente (dentro de 1 hora), usa o cache
-            console.log('Usando dados do cache');
-            mostrarNoticias(noticiasUolCache);
-            return;
-        }
+const rssFeedsUol = [
+  "https://rss.uol.com.br/feed/tecnologia.xml",
+  "http://rss.uol.com.br/feed/economia.xml",
+  "https://rss.uol.com.br/feed/comecar-o-dia.xml"
+];
 
-        // Requisição que retorna um ArrayBuffer (bytes brutos)
-        const response = await fetch(proxy + encodeURIComponent(url));
-        const buffer = await response.arrayBuffer();
-        
-        // Decodifica os bytes usando a codificação iso-8859-1
-        const decoder = new TextDecoder("iso-8859-1");
-        const text = decoder.decode(buffer);
-    
-        // Faz o parsing do XML
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "text/xml");
-    
-        // Extração dos itens do feed
-        const items = xml.querySelectorAll("item");
-        let noticias = [];
+const impacto1 = []
 
-        items.forEach((item) => {
-            let titulo = item.querySelector("title")?.textContent || "Sem título";
-            let descricao = item.querySelector("description")?.textContent || "Sem descrição";
-            let link = item.querySelector("link")?.textContent || "Sem descrição";
-            let pubDate = item.querySelector("pubDate")?.textContent || "Sem descrição";
+const impacto2 = [
+  "tragedia", "tragédia", "catastrofe", "catástrofe", "gerra", "medo", "IA", "trend", "golpe", "EUA", "Estados Unidos", "greve", "assedi", "assédi"
+]
 
-            let match = descricao.match(/<img\s+[^>]*src=['"]([^'"]+)['"]/i);
-            let thumbnail = match ? match[1] : null;
+const impacto3 = [
+  "Trump",
+        "Bolsonaro",
+        "Lula",
+        "Musk",
+        "Gates",
+        "fogo",
+        "teme",
+        "bilh",
+        "conden",
+        "bilio",
+]
 
-            if(thumbnail == null){
-                thumbnail = "https://conteudo.imguol.com.br/c/home/interacao/facebook/compartilhe.png";
-            }
+async function fetchXML(rssUrl) {
+  const apiURL = proxy + encodeURIComponent(rssUrl);
+  try {
+    const response = await fetch(apiURL);
+    const buffer = await response.arrayBuffer();
+    const decoder = new TextDecoder("iso-8859-1");
+    return decoder.decode(buffer);
+  } catch (error) {
+    console.error("Erro ao carregar o feed:", error);
+    return null;
+  }
+}
 
-            noticias.push({ titulo, descricao, link, thumbnail, pubDate });
-        });
+async function carregarNoticias() {
+  const cacheTime = localStorage.getItem(cacheTimeKey);
+  const now = Date.now();
 
-        // Armazena os dados carregados e a data da última atualização
-        noticiasUolCache = noticias;
-        lastLoaded = now;
-
-        // Exibe as notícias
-        mostrarNoticias(noticias);
-        console.log(noticias);
-    } catch (error) {
-        console.error("Erro ao carregar RSS:", error);
+  if (cacheTime && now - cacheTime < cacheDuration) {
+    const cachedXML = JSON.parse(localStorage.getItem(cacheKey));
+    if (cachedXML) {
+      todasNoticias = processXMLs(cachedXML);
+      console.log("Usando cache");
+      exibirNoticias();
+      return;
     }
+  }
+
+  let xmlDataList = [];
+  for (let feed of rssFeedsUol) {
+    const xmlData = await fetchXML(feed);
+    if (xmlData) xmlDataList.push(xmlData);
+  }
+
+  if (xmlDataList.length > 0) {
+    localStorage.setItem(cacheKey, JSON.stringify(xmlDataList));
+    localStorage.setItem(cacheTimeKey, now);
+    todasNoticias = processXMLs(xmlDataList);
+    console.log("Cache atualizado");
+  }
+
+  exibirNoticias();
 }
 
-// Função para mostrar as notícias no HTML
-function mostrarNoticias(noticias) {
-    let jsonShow = document.getElementById("feed");
-    jsonShow.innerHTML = ''; // Limpa a área antes de adicionar as notícias
+function processXMLs(xmlDataList) {
+  let todasNoticiasTemp = [];
+  xmlDataList.forEach((xmlData) => {
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(xmlData, "text/xml");
+    const items = xml.querySelectorAll("item");
+    
+    items.forEach((item) => {
+      let titulo = item.querySelector("title")?.textContent || "Sem título";
+      let descricao = item.querySelector("description")?.textContent || "Sem descrição";
+      let link = item.querySelector("link")?.textContent || "Sem link";
+      let pubDate = item.querySelector("pubDate")?.textContent || "Sem data";
+      let match = descricao.match(/<img\s+[^>]*src=['"]([^'"]+)['"]/i);
+      let thumbnail = match ? match[1] : "https://conteudo.imguol.com.br/c/home/interacao/facebook/compartilhe.png";
 
-    noticias.forEach(noticia => {
-        let descricaoCorrigida = noticia.descricao.replace(/<img[^>]*>/g, "");
-        jsonShow.innerHTML += `<img src='${noticia.thumbnail}'><br>`;
-        jsonShow.innerHTML += `<a href='${noticia.link}'><b>${noticia.titulo}</b></a><br>`;
-        jsonShow.innerHTML += descricaoCorrigida + "<br>";
+      let category = ""
+if (link.includes(rssUolCategory[0])) {
+  category = "Tecnologia"; 
+}
+else if (link.includes(rssUolCategory[1])) {
+  category = "Economia"; 
+}
+else if (link.includes(rssUolCategory[2])) {
+  category = "Mundo"; 
+}
+
+let impact = newsImpact(titulo,descricao)
+/*
+let impact = 1
+
+if (
+            impacto3.some(
+              (palavra) =>
+                titulo.includes(palavra) || descricao.includes(palavra)
+            )
+          ) {
+            impact = 3;
+          }else if(
+            impacto2.some(
+              (palavra) =>
+              titulo.includes(palavra) || descricao.includes(palavra)
+            )
+          ){
+            impact = 2;
+          }
+          */
+      
+      todasNoticiasTemp.push({ titulo, descricao, link, thumbnail, pubDate, category, impact });
     });
+  });
+  
+  return todasNoticiasTemp.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 }
 
-// Chame a função com o feed do UOL inicialmente
-carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
+function exibirNoticias() {
+  let jsonShow = document.getElementById("feed");
+  jsonShow.innerHTML = "";
+  todasNoticias.forEach((noticia) => {
+    let descricaoCorrigida = noticia.descricao.replace(/<img[^>]*>/g, "");
+    jsonShow.innerHTML += `<img src='${noticia.thumbnail}'><br>`;
+    jsonShow.innerHTML += `<a href='${noticia.link}'><b>${noticia.titulo}, ${noticia.category}, ${noticia.impact}</b></a><br>`;
+    jsonShow.innerHTML += descricaoCorrigida + "<br>";
+    jsonShow.innerHTML += noticia.pubDate + "<br>";
+  });
+}
 
-// Atualiza as notícias a cada 1 hora (3600000 ms)
-setInterval(() => {
-    carregarRSS("https://rss.uol.com.br/feed/tecnologia.xml");
-}, 3600000);
-
-
-
+carregarNoticias();
+setInterval(carregarNoticias, cacheDuration);
 
 </script>
+
+
+
 <a href=""></a>
 </body>
 </html>

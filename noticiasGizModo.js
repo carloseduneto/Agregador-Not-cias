@@ -1,4 +1,4 @@
-async function carregarRSSGiz(url) {
+async function carregarRSS(url) {
   // Usando o AllOrigins para contornar o CORS
   const proxy = "https://api.allorigins.win/raw?url=";
 
@@ -56,7 +56,8 @@ async function carregarRSSGiz(url) {
         "Ãµ": "õ",
         "Âª": "ª",
         "Ã": "à",
-        'Â': ""
+        'Â': "",
+        "â€": "”"
       };
 
       let textoCorrigido = texto;
@@ -68,12 +69,23 @@ async function carregarRSSGiz(url) {
       return textoCorrigido;
     }
 
+    function clearText(text){
+      // Remove todas as tags HTML
+      let textOnly = text.replace(/<\/?[^>]+(>|$)/g, "").trim();
+
+      // Pega apenas a primeira linha (o texto que queremos)
+      let extractedText = textOnly.split("\n")[0];
+
+      return extractedText
+    }
+
     items.forEach((item) => {
       let title = item.querySelector("title")?.textContent || "Sem título";
       title = corrigirTexto(title)
 
       let description = item.querySelector("description")?.textContent || "Sem descrição";
       description = corrigirTexto(description)
+      description = clearText(description)
 
       let link = item.querySelector("link")?.textContent || "Sem descrição";
       let pubDate = item.querySelector("pubDate")?.textContent || "Sem descrição";
@@ -118,4 +130,8 @@ async function carregarRSSGiz(url) {
 }
 
 // Chame a função com o feed do UOL
-carregarRSSGiz("https://gizmodo.uol.com.br/feed/");
+carregarRSS("https://gizmodo.uol.com.br/feed/");
+
+function carregarRSSGiz() {
+  carregarRSS("https://gizmodo.uol.com.br/feed/");
+}
