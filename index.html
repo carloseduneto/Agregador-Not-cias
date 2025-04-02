@@ -73,6 +73,12 @@
         background-color: #555;
         border-radius: 5px;
       }
+      .impactTitle{
+        /* background-color: aqua; */
+        margin-bottom: 10px;
+        font-size: 20px;
+        padding-left: 10px;
+      }
 
       @media only screen and (max-width: 600px) {
   .logo {
@@ -124,6 +130,12 @@
         "misteriosdomundo",
         "super.abril.com.br",
         "redir.folha.com.br/redir"
+      ]
+      const rssTecnologia = [
+        "pplware.sapo.pt"
+      ]
+      const rssMundo = [
+        "www.bbc.com/portuguese/articles"
       ]
 
       const ciencias =[
@@ -198,7 +210,7 @@
           const noticias = await processFeed(feed);
           todasNoticiasTemp = todasNoticiasTemp.concat(noticias);
         }
-        // todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
+        todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
 
         todasNoticiasTemp.sort(
           (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
@@ -218,7 +230,20 @@
                (item2.link.includes(palavra)))
           ) {
              item2.category = "Ciência"
-          } 
+          }else if(
+            rssTecnologia.some(
+              (palavra) =>
+               (item2.link.includes(palavra)))
+          ){
+            item2.category = "Tecnologia"
+          }else if(
+            rssMundo.some(
+              (palavra) =>
+               (item2.link.includes(palavra)))
+          ){
+            item2.category = "Mundo"
+          }
+
           item2.impact = newsImpact(item2.title,item2.description)
         }
 
