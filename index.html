@@ -183,16 +183,22 @@
       }
       // console.log(globalThis.noticiasUol)
 
-      async function carregarNoticias() {
+      async function carregarNoticiasPorNível(impactLevel, impactTitleName) {
         const feedDiv = document.getElementById("feed");
         feedDiv.innerHTML = "";
+
+        const impactTitle = document.createElement("div");
+        impactTitle.className = "impactTitle"
+        impactTitle.innerHTML = impactTitleName
+
+        
 
         let todasNoticiasTemp = [];
         for (let feed of rssFeeds) {
           const noticias = await processFeed(feed);
           todasNoticiasTemp = todasNoticiasTemp.concat(noticias);
         }
-        todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
+        // todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
 
         todasNoticiasTemp.sort(
           (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
@@ -204,6 +210,7 @@
 
         //Categorizar notícias e avaliar impacto
         for(const item2 of todasNoticias){
+          feedDiv.appendChild(impactTitle)
           console.log(item2.link)
           if (
             rssCiencia.some(
@@ -235,6 +242,8 @@
               continue; 
             }          
             */
+
+            
 
           // Removendo caracteres corrompidos
           function corrigirTexto(texto) {
@@ -274,6 +283,8 @@
           const urlObj = new URL(item.link);
           const fonte = urlObj.hostname.replace("www.", "");
 
+         
+          if(item.impact==impactLevel){
           const noticia = document.createElement("div");
           noticia.className = "noticia";
           noticia.innerHTML = `
@@ -292,13 +303,23 @@
           }
 
 
+
+
           feedDiv.appendChild(noticia);
+}
         }
 
         if (feedDiv.innerHTML === "") {
           feedDiv.innerHTML = "<p>Nenhuma notícia disponível.</p>";
         }
       }
+
+     function carregarNoticias() {
+      carregarNoticiasPorNível(1, "Impacto Leve")
+      carregarNoticiasPorNível(2, "Impacto Moderado")
+      carregarNoticiasPorNível(3, "Impacto Alto")
+      
+     }
 
       // Primeira execução
       carregarNoticias();
