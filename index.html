@@ -94,7 +94,8 @@
   </head>
   <body>
     <h1><img src="logo.svg" alt="" class="logo"></h1>
-    <div id="feed"><div class="noticia">
+    <div id="feed">
+      <div class="noticia">
       <div class="blankLoading">
 
         <div class="loader"></div>
@@ -106,6 +107,47 @@
 
         <script src="newsImpact.js"></script>
     <script>
+const feedDiv = document.getElementById("feed");
+
+function verificarNoticias() {
+  const noticias = feedDiv.getElementsByClassName("noticia");
+  const impactTitles = feedDiv.getElementsByClassName("impactTitle");
+
+  // Se só existirem elementos impactTitle e nenhuma notícia, trata como se não houvesse notícias
+  const apenasImpactTitle = noticias.length === 0 && impactTitles.length > 0;
+
+  // Enquanto houver menos de 2 notícias, adiciona placeholders de loading
+  while (noticias.length < 2) {
+    const noticiaLoading = document.createElement("div");
+    noticiaLoading.classList.add("noticia");
+    noticiaLoading.innerHTML = `
+      <div class="blankLoading">
+        <div class="loader"></div>
+      </div>
+      <h3 class="h3Loading">A</h3>
+      <p class="pLoading">A</p>
+    `;
+    feedDiv.appendChild(noticiaLoading);
+  }
+
+  return apenasImpactTitle;
+}
+
+// Chama a função ao carregar a página
+const apenasImpactTitle = verificarNoticias();
+
+// Verifica e recarrega a página se necessário a cada 5 segundos
+setInterval(() => {
+  const noticiasReais = [...feedDiv.getElementsByClassName("noticia")]
+    .filter(noticia => !noticia.querySelector(".blankLoading")).length;
+  const impactTitles = feedDiv.getElementsByClassName("impactTitle").length;
+  const apenasImpactTitle = noticiasReais === 0 && impactTitles > 0;
+
+  if (noticiasReais < 2 || apenasImpactTitle) {
+    location.reload();
+  }
+}, 115000);
+
       const palavrasProibidas = [
         "Trump",
         "Bolsonaro",
@@ -115,6 +157,7 @@
         "Gates",
         "chocante",
       ];
+
       const rssFeeds = [
         "https://misteriosdomundo.org/feed/gn",
         "http://www.bbc.co.uk/portuguese/index.xml",
@@ -339,6 +382,7 @@
         }
       }
 
+      
      function carregarNoticias() {
       carregarNoticiasPorNível(1, "Impacto Leve")
       carregarNoticiasPorNível(2, "Impacto Moderado")

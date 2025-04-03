@@ -17,7 +17,8 @@ const impacto2 = [
   "assedi",
   "assédi",
   "crise",
-
+  "preocupante",
+  "militar"
 ];
 
 const impacto3 = [
@@ -32,7 +33,8 @@ const impacto3 = [
   "conden",
   "bilio",
   "destrui",
-  "morte"
+  "morte",
+  "alarm"
 ];
 
     let rate = 1
