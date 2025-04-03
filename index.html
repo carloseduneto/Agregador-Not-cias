@@ -94,6 +94,14 @@
   </head>
   <body>
     <h1><img src="logo.svg" alt="" class="logo"></h1>
+
+
+<select name="newsSubject" id="newsSubject">
+  <option value="Todos">Todos</option>
+  <option value="Ciência">Ciência</option>
+  <option value="Tecnologia">Tecnologia</option>
+  <option value="Outros">Outros</option>
+</select> 
     <div id="feed">
       <div class="noticia">
       <div class="blankLoading">
@@ -238,7 +246,7 @@ setInterval(() => {
       }
       // console.log(globalThis.noticiasUol)
 
-      async function carregarNoticiasPorNível(impactLevel, impactTitleName) {
+      async function carregarNoticiasPorNível(impactLevel, impactTitleName, category) {
         const feedDiv = document.getElementById("feed");
         feedDiv.innerHTML = "";
 
@@ -253,7 +261,8 @@ setInterval(() => {
           const noticias = await processFeed(feed);
           todasNoticiasTemp = todasNoticiasTemp.concat(noticias);
         }
-        todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
+        //Readicionar essa linha para inserir outras notícias
+        // todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
 
         todasNoticiasTemp.sort(
           (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
@@ -351,10 +360,33 @@ setInterval(() => {
           const urlObj = new URL(item.link);
           const fonte = urlObj.hostname.replace("www.", "");
 
-         
-          if(item.impact==impactLevel){
+         //Loading
+          if(item.impact==impactLevel && category == item.category){
           const noticia = document.createElement("div");
-          noticia.className = "noticia";
+          noticia.className = "noticia realNews";
+          noticia.innerHTML = `
+      <img src="${imageUrl}" alt="Imagem da notícia">
+      <p class="fonte">Fonte: ${fonte}, ${item.category}, ${item.impact}</p>`
+      if (
+            cleanSites.some(
+              (palavra) =>
+               item.link.includes(palavra))
+          ) {
+            noticia.innerHTML+=`<h3><a href="https://12ft.io/${item.link}" target="_blank">${titleCorrigido}</a></h3>
+      <p>${descricaoCorrigida}</p>`;
+          }else{
+            noticia.innerHTML+=`<h3><a href="${item.link}" target="_blank">${titleCorrigido}</a></h3>
+            <p>${descricaoCorrigida}</p>`;
+          }
+
+
+
+
+          feedDiv.appendChild(noticia);
+}
+        else if(item.impact==impactLevel && category == "Todos"){
+          const noticia = document.createElement("div");
+          noticia.className = "noticia realNews";
           noticia.innerHTML = `
       <img src="${imageUrl}" alt="Imagem da notícia">
       <p class="fonte">Fonte: ${fonte}, ${item.category}, ${item.impact}</p>`
@@ -384,9 +416,23 @@ setInterval(() => {
 
       
      function carregarNoticias() {
-      carregarNoticiasPorNível(1, "Impacto Leve")
-      carregarNoticiasPorNível(2, "Impacto Moderado")
-      carregarNoticiasPorNível(3, "Impacto Alto")
+      let optionSelect = "Todos"
+      document.getElementById("newsSubject").addEventListener("change", function() {
+    console.log(this.value);
+    optionSelect = this.value
+    
+    console.log("option select: " + optionSelect)
+    
+    
+    carregarNoticiasPorNível(1, "Impacto Leve", optionSelect)
+    carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect)
+    carregarNoticiasPorNível(3, "Impacto Alto", optionSelect)
+    
+  });
+  
+  carregarNoticiasPorNível(1, "Impacto Leve", optionSelect)
+  carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect)
+  carregarNoticiasPorNível(3, "Impacto Alto", optionSelect)
       
      }
 
