@@ -58,4 +58,6 @@ const impacto3 = [
     return rate
 }
 
+
+
 window.newsImpact = newsImpact
