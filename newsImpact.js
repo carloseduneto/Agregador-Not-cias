@@ -34,7 +34,12 @@ const impacto3 = [
   "bilio",
   "destrui",
   "morte",
-  "alarm"
+  "alarm",
+  "ataque",
+  "incendio",
+  "incêncio",
+  "Zuckerberg",
+  "Ataque"
 ];
 
     let rate = 1
