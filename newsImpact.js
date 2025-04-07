@@ -18,7 +18,12 @@ const impacto2 = [
   "assédi",
   "crise",
   "preocupante",
-  "militar"
+  "militar",
+  "incêncio",
+  "incendio",
+  "pertubad",
+  "sobreviv",
+  "ataque",
 ];
 
 const impacto3 = [
@@ -34,7 +39,10 @@ const impacto3 = [
   "bilio",
   "destrui",
   "morte",
-  "alarm"
+  "morre",
+  "alarm",
+  "assassin",
+  "Zuckerberg",
 ];
 
     let rate = 1
