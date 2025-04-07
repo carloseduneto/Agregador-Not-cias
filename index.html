@@ -101,6 +101,7 @@
   <option value="Ciência">Ciência</option>
   <option value="Tecnologia">Tecnologia</option>
   <option value="Economia">Economia</option>
+  <option value="Mundo">Mundo</option>
   <option value="Outros">Outros</option>
 </select> 
     <div id="feed">
@@ -174,18 +175,26 @@ setInterval(() => {
         "https://super.abril.com.br/feed/",
         "http://pplware.sapo.pt/feed/",
         "https://feeds.folha.uol.com.br/ciencia/rss091.xml",
+        "https://www.gazetadopovo.com.br/feed/rss/economia.xml",
+        "https://www.gazetadopovo.com.br/feed/rss/mundo.xml",
       ];
 
       const rssCiencia = [
         "misteriosdomundo",
         "super.abril.com.br",
-        "redir.folha.com.br/redir"
+        "redir.folha.com.br/redir",
       ]
       const rssTecnologia = [
         "pplware.sapo.pt"
       ]
       const rssMundo = [
-        "www.bbc.com/portuguese/articles"
+        "www.bbc.com/portuguese/articles",
+        "www.gazetadopovo.com.br/mundo/",
+      ]
+
+      const rssEconomia = [
+        "www.gazetadopovo.com.br/economia/",
+
       ]
 
       const ciencias =[
@@ -295,6 +304,12 @@ setInterval(() => {
                (item2.link.includes(palavra)))
           ){
             item2.category = "Mundo"
+          }else if(
+            rssEconomia.some(
+              (palavra) =>
+               (item2.link.includes(palavra)))
+          ){
+            item2.category = "Economia"
           }
 
           item2.impact = newsImpact(item2.title,item2.description)
@@ -443,9 +458,14 @@ setInterval(() => {
       // Atualizar a cada 1 hora (3600000 ms)
       setInterval(carregarNoticias, 3600000);
 
+
       
-    </script>
+      
+      
+      
+      </script>
     <script src="noticiasGizModo.js" onload="carregarRSSGiz()"></script>
+    
 
   </body>
 </html>
