@@ -114,6 +114,7 @@
     </div>
 
         <script src="newsImpact.js"></script>
+        <script src="noticiasUol.js"></script>
     <script>
 const feedDiv = document.getElementById("feed");
 
@@ -170,7 +171,6 @@ setInterval(() => {
         "https://misteriosdomundo.org/feed/gn",
         "http://www.bbc.co.uk/portuguese/index.xml",
         "https://super.abril.com.br/feed/",
-        "https://rss.uol.com.br/feed/tecnologia.xml",
         "http://pplware.sapo.pt/feed/",
         "https://feeds.folha.uol.com.br/ciencia/rss091.xml",
   
@@ -264,6 +264,8 @@ setInterval(() => {
         //Readicionar essa linha para inserir outras notícias
         // todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.noticiasUol)
 
+        todasNoticiasTemp = todasNoticiasTemp.concat(globalThis.todasNoticiasTempUol)
+
         todasNoticiasTemp.sort(
           (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
         );
@@ -275,7 +277,7 @@ setInterval(() => {
         //Categorizar notícias e avaliar impacto
         for(const item2 of todasNoticias){
           feedDiv.appendChild(impactTitle)
-          console.log(item2.link)
+          // console.log(item2.link)
           if (
             rssCiencia.some(
               (palavra) =>
