@@ -46,7 +46,8 @@ const impacto3 = [
   "incendio",
   "incêncio",
   "Zuckerberg",
-  "Ataque"
+  "Ataque",
+  "escravo"
 ];
 
     let rate = 1
