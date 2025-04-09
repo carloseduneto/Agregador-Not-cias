@@ -80,6 +80,31 @@
         padding-left: 10px;
       }
 
+      /* .impactLevelIcon1{
+        background-color: rgb(190, 255, 125);
+        color: green;
+      }
+      .impactLevelIcon2{
+        background-color: rgb(255, 225, 125);
+        color: rgb(255, 145, 0);
+      }
+      .impactLevelIcon3{
+        background-color: rgb(255, 125, 125);
+        color: rgba(255, 0, 0, 0.836);
+      } */
+      .impactLevel1{
+        background-color: rgb(248, 255, 250);
+        border-top: solid rgb(5, 161, 0);
+      }
+      .impactLevel2{
+        background-color: rgb(255, 253, 243);
+        border-top: solid rgb(255, 145, 0);
+      }
+      .impactLevel3{
+        background-color: rgb(255, 244, 244);
+        border-top: solid rgb(255, 0, 0);
+      }
+
       @media only screen and (max-width: 600px) {
   .logo {
     width: 50%;
@@ -380,7 +405,7 @@ setInterval(() => {
          //Loading
           if(item.impact==impactLevel && category == item.category){
           const noticia = document.createElement("div");
-          noticia.className = "noticia realNews";
+          noticia.className = "noticia realNews impactLevel"+impactLevel;
           noticia.innerHTML = `
       <img src="${imageUrl}" alt="Imagem da notícia">
       <p class="fonte">Fonte: ${fonte}, ${item.category}, ${item.impact}</p>`
@@ -403,7 +428,7 @@ setInterval(() => {
 }
         else if(item.impact==impactLevel && category == "Todos"){
           const noticia = document.createElement("div");
-          noticia.className = "noticia realNews";
+          noticia.className = "noticia realNews impactLevel"+impactLevel;
           noticia.innerHTML = `
       <img src="${imageUrl}" alt="Imagem da notícia">
       <p class="fonte">Fonte: ${fonte}, ${item.category}, ${item.impact}</p>`
