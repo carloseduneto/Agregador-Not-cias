@@ -177,7 +177,7 @@ setInterval(() => {
         "https://feeds.folha.uol.com.br/ciencia/rss091.xml",
         "https://www.gazetadopovo.com.br/feed/rss/economia.xml",
         "https://www.gazetadopovo.com.br/feed/rss/mundo.xml",
-        "https://feeds.folha.uol.com.br/blogs/ciencia-fundamental/rss091.xml"
+        "https://feeds.folha.uol.com.br/blogs/ciencia-fundamental/rss091.xml",
       ];
 
       const rssCiencia = [
@@ -432,26 +432,35 @@ setInterval(() => {
       }
 
       
-     function carregarNoticias() {
-      let optionSelect = "Todos"
-      document.getElementById("newsSubject").addEventListener("change", function() {
-    console.log(this.value);
-    optionSelect = this.value
-    
-    console.log("option select: " + optionSelect)
-    
-    
-    carregarNoticiasPorNível(1, "Impacto Leve", optionSelect)
-    carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect)
-    carregarNoticiasPorNível(3, "Impacto Alto", optionSelect)
-    
+function carregarNoticias() {
+  const selectElement = document.getElementById("newsSubject");
+
+  // Recupera a última escolha salva, se houver
+  const savedOption = localStorage.getItem("newsSubjectSelecionado");
+
+  if (savedOption) {
+    selectElement.value = savedOption;
+  }
+
+  let optionSelect = selectElement.value;
+
+  // Carrega com o valor restaurado ou padrão
+  carregarNoticiasPorNível(1, "Impacto Leve", optionSelect);
+  carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect);
+  carregarNoticiasPorNível(3, "Impacto Alto", optionSelect);
+
+  // Atualiza quando o usuário muda a seleção
+  selectElement.addEventListener("change", function () {
+    optionSelect = this.value;
+    localStorage.setItem("newsSubjectSelecionado", optionSelect); // Salva a seleção
+
+    carregarNoticiasPorNível(1, "Impacto Leve", optionSelect);
+    carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect);
+    carregarNoticiasPorNível(3, "Impacto Alto", optionSelect);
   });
-  
-  carregarNoticiasPorNível(1, "Impacto Leve", optionSelect)
-  carregarNoticiasPorNível(2, "Impacto Moderado", optionSelect)
-  carregarNoticiasPorNível(3, "Impacto Alto", optionSelect)
-      
-     }
+}
+
+
 
       // Primeira execução
       carregarNoticias();
